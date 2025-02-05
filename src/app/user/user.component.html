@@ -1,0 +1,11 @@
+<app-card>
+  <button [class.active]="selected" (click)="onSelectUser()">
+    <!-- Listening to Events with Event Binding -->
+    <!-- Computed value Computed get imagePath()--><img
+      [src]="imagePath"
+      [alt]="user.name"
+    /><!-- Property Binding  [src]="'assets/users/' + selectedUser.avatar"-->
+    <span>{{ user.name }}</span
+    ><!-- String Interpolation {{ selectedUser.name }}-->
+  </button>
+</app-card>
