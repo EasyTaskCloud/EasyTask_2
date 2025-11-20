@@ -37,7 +37,7 @@ export class UserComponent {
   name = input.required<string>(); */
 
   get imagePath() {
-    return 'assets/users/' + this.user.avatar;
+    return 'assets/users/' + this.user.bildpfad;
   }
 
   /* public selectedUser = signal(DUMMY_USERS[randomIndex]);

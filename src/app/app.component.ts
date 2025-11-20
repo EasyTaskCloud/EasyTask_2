@@ -4,6 +4,8 @@ import { UserComponent } from './user/user.component';
 import { DUMMY_USERS } from './dummy-users';
 import { TasksComponent } from './tasks/tasks.component';
 import { NgFor, NgIf } from '@angular/common';
+import { ApiService } from './config/api.service';
+import { User } from './user/user.model';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -12,8 +14,14 @@ import { NgFor, NgIf } from '@angular/common';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  users = DUMMY_USERS;
+  users: User[] = [];
   selectedUserId?: string;
+
+   constructor(private apiService :ApiService){
+    apiService.getusers().subscribe(res => {
+     this.users = res;
+    });
+  }
   get selectedUser() {
     return this.users.find((user) => user.id === this.selectedUserId);
   }

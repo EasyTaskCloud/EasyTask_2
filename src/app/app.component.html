@@ -16,7 +16,7 @@
   <app-tasks
     [userId]="selectedUser.id"
     *ngIf="selectedUser; else fallback"
-    [name]="selectedUser!.name"
+    [name]="selectedUser!.vorname"
   />
   <!-- } @else { -->
   <ng-template #fallback>
