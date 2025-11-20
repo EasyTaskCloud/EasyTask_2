@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { type Task } from './task/task.model';
 import { NewTask } from './new-task/new-task.model';
+import { ApiService } from '../config/api.service';
 
 @Injectable({ providedIn: 'root' }) /* Dependency Injection */
 export class TasksService {
@@ -30,7 +31,7 @@ export class TasksService {
     },
   ];
 
-  constructor() {
+  constructor(private apiService: ApiService) {
     const tasks = localStorage.getItem('tasks');
     if (tasks) {
       this.tasks = JSON.parse(tasks);
