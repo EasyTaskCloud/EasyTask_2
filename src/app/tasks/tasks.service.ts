@@ -36,6 +36,10 @@ export class TasksService {
     if (tasks) {
       this.tasks = JSON.parse(tasks);
     }
+      this.apiService.getTodosByUserId("1").subscribe(data => {
+
+        this.tasks = data;
+  });
   }
 
   getUserTasks(userId: string) {
