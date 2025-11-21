@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, Signal, SimpleChanges } from '@angular/core';
 import { TaskComponent } from './task/task.component';
 import { NewTaskComponent } from './new-task/new-task.component';
 import { type NewTask } from './new-task/new-task.model';
+import { Task } from './task/task.model';
 import { TasksService } from './tasks.service';
 
 @Component({
@@ -11,10 +12,11 @@ import { TasksService } from './tasks.service';
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.css',
 })
-export class TasksComponent {
+export class TasksComponent implements OnChanges{
   @Input({ required: true }) userId!: string;
   @Input({ required: true }) name!: string;
   isAddingTask = false;
+  selectedUserTasksSignal!: Signal<Task[]>;
   /*private tasksService: TasksService;  Dependency Injection */
 
   /* Dependency Injection shortcut */
@@ -24,10 +26,14 @@ export class TasksComponent {
   /*this.tasksService = tasksService;  Dependency Injection 
   }*/
 
-  get selectedUserTasks() {
-    return this.tasksService.getUserTasks(this.userId);
+   ngOnChanges(changes: SimpleChanges) {
+    if (changes['userId'] && this.userId) {
+      // Stelle sicher, dass Tasks geladen werden (nur 1 API Aufruf)
+      this.tasksService.ensureUserTasks(this.userId);
+      // Hole das Signal für diese userId (computed reference)
+      this.selectedUserTasksSignal = this.tasksService.getUserTasksSignal(this.userId);
+    }
   }
-
   onAddNewTask() {
     this.isAddingTask = true;
   }

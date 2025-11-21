@@ -9,7 +9,7 @@
     </menu>
   </header>
   <ul>
-    @for (task of selectedUserTasks; track task.id) {
+    @for (task of selectedUserTasksSignal(); track task.id) {
     <li>
       <app-task [task]="task" />
     </li>

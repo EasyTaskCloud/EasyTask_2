@@ -1,10 +1,13 @@
-import { Injectable } from '@angular/core';
+import { computed, Injectable, Signal, signal } from '@angular/core';
 import { type Task } from './task/task.model';
 import { NewTask } from './new-task/new-task.model';
 import { ApiService } from '../config/api.service';
+import { tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' }) /* Dependency Injection */
 export class TasksService {
+  private userTasksMap = signal<Record<string, Task[]>>({});
+  private loadingMap = signal<Record<string, boolean>>({});
   private tasks = [
     {
       id: 't1',
@@ -38,6 +41,13 @@ export class TasksService {
     }
   }
 
+    getUserTasksSignal(userId: string): Signal<Task[]> {
+    return computed(() => {
+      const map = this.userTasksMap();
+      return map[userId] ?? [];
+    });
+  }
+
   getUserTasks(userId: string) {
     return this.tasks.filter((task) => task.userId === userId);
   }
@@ -51,6 +61,47 @@ export class TasksService {
       dueDate: taskData.date,
     });
     this.saveTasks();
+  }
+
+   // Prüft cache; wenn nicht vorhanden, lädt von API und setzt das Signal.
+  ensureUserTasks(userId: string): void {
+    if (!userId) return;
+    const map = this.userTasksMap();
+    if (map[userId]) {
+      // schon geladen -> nichts tun
+      return;
+    }
+
+    // set loading flag
+    const lm = { ...this.loadingMap() };
+    lm[userId] = true;
+    this.loadingMap.set(lm);
+
+    // API-Aufruf einmalig (subscribe einmal)
+    this.apiService.getTodosByUserId(userId)
+      .pipe(
+        tap(() => {
+          // nach dem Resultat loading false setzen wird unten gemacht
+        })
+      )
+      .subscribe({
+        next: (tasks: Task[]) => {
+          const newMap = { ...this.userTasksMap() };
+          newMap[userId] = tasks ?? [];
+          this.userTasksMap.set(newMap);
+
+          const newLm = { ...this.loadingMap() };
+          newLm[userId] = false;
+          this.loadingMap.set(newLm);
+        },
+        error: (err) => {
+          console.error('Fehler beim Laden der Tasks für', userId, err);
+          const newLm = { ...this.loadingMap() };
+          newLm[userId] = false;
+          this.loadingMap.set(newLm);
+          // optional: setze newMap[userId] = [] oder behalte undefined
+        }
+      });
   }
 
   removeTask(id: string) {
