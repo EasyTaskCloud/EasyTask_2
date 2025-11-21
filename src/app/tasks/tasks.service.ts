@@ -53,14 +53,22 @@ export class TasksService {
   }
 
   addTask(taskData: NewTask, userId: string) {
-    this.tasks.unshift({
-      id: new Date().getTime().toString(),
-      userId: userId,
-      title: taskData.title,
-      summary: taskData.summery,
-      dueDate: taskData.date,
-    });
-    this.saveTasks();
+     const body = {
+    userId: userId,
+    title: taskData.title,
+    summary: taskData.summery, 
+    dueDate: taskData.date
+  };
+
+    this.apiService.createTask(body).subscribe({
+    next: (newTask) => {
+      // Backend gibt dir das erstellte Task mit ID zurück
+      this.tasks.unshift(newTask); // UI direkt aktualisieren
+    },
+    error: (err) => {
+      console.error('Fehler beim Erstellen des Tasks', err);
+    }
+  });
   }
 
    // Prüft cache; wenn nicht vorhanden, lädt von API und setzt das Signal.

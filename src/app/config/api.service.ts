@@ -23,4 +23,8 @@ export class ApiService {
    deleteTodo(id: string) {
     return this.http.delete(`${this.baseUrl}/todos/${id}`);
   }
+
+  createTask(body: any){
+    return this.http.post<Task>(`${this.baseUrl}/todos`, body);
+  }
 }
