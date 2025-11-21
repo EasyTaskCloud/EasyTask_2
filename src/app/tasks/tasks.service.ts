@@ -105,8 +105,11 @@ export class TasksService {
   }
 
   removeTask(id: string) {
-    this.tasks = this.tasks.filter((task) => task.id !== id);
-    this.saveTasks();
+     this.apiService.deleteTodo(id).subscribe({
+    error: (err) => {
+      console.error('Fehler beim Löschen: ', err);
+    }
+  });
   }
 
   private saveTasks() {
