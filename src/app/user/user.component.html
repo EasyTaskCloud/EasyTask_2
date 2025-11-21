@@ -5,7 +5,7 @@
       [src]="imagePath"
       [alt]="user.vorname"
     /><!-- Property Binding  [src]="'assets/users/' + selectedUser.avatar"-->
-    <span>{{ user.vorname}}</span
+    <span>{{ user.vorname+' '+user.nachname}}</span
     ><!-- String Interpolation {{ selectedUser.name }}-->
   </button>
 </app-card>
