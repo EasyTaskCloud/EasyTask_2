@@ -7,7 +7,7 @@ import { tap } from 'rxjs';
 @Injectable({ providedIn: 'root' }) /* Dependency Injection */
 export class TasksService {
   private userTasksMap = signal<Record<string, Task[]>>({});
-  private loadingMap = signal<Record<string, boolean>>({});
+/*   private loadingMap = signal<Record<string, boolean>>({}); */
   private tasks = [
     {
       id: 't1',
@@ -94,9 +94,9 @@ export class TasksService {
     }
 
     // set loading flag
-    const lm = { ...this.loadingMap() };
+/*     const lm = { ...this.loadingMap() };
     lm[userId] = true;
-    this.loadingMap.set(lm);
+    this.loadingMap.set(lm); */
 
     // API-Aufruf einmalig (subscribe einmal)
     this.apiService.getTodosByUserId(userId)
@@ -111,27 +111,38 @@ export class TasksService {
           newMap[userId] = tasks ?? [];
           this.userTasksMap.set(newMap);
 
-          const newLm = { ...this.loadingMap() };
+/*           const newLm = { ...this.loadingMap() };
           newLm[userId] = false;
-          this.loadingMap.set(newLm);
+          this.loadingMap.set(newLm); */
         },
         error: (err) => {
           console.error('Fehler beim Laden der Tasks für', userId, err);
-          const newLm = { ...this.loadingMap() };
+/*           const newLm = { ...this.loadingMap() };
           newLm[userId] = false;
-          this.loadingMap.set(newLm);
+          this.loadingMap.set(newLm); */
           // optional: setze newMap[userId] = [] oder behalte undefined
         }
       });
   }
 
-  removeTask(id: string) {
-     this.apiService.deleteTodo(id).subscribe({
+removeTask(id: string, userId: string) {
+  this.apiService.deleteTodo(id).subscribe({
+    next: () => {
+      // Direkt aus dem Signal entfernen (ohne API-Aufruf)
+      const currentMap = this.userTasksMap();
+      if (currentMap[userId]) {
+        const updatedUserTasks = currentMap[userId].filter(task => task.id !== id);
+        this.userTasksMap.set({
+          ...currentMap,
+          [userId]: updatedUserTasks
+        });
+      }
+    },
     error: (err) => {
       console.error('Fehler beim Löschen: ', err);
     }
   });
-  }
+}
 
   private saveTasks() {
     localStorage.setItem('tasks', JSON.stringify(this.tasks));
