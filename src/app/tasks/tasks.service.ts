@@ -63,13 +63,26 @@ export class TasksService {
     this.apiService.createTask(body).subscribe({
     next: (newTask) => {
       // Backend gibt dir das erstellte Task mit ID zurück
-      this.tasks.unshift(newTask); // UI direkt aktualisieren
+      this.reloadUserTasks(userId); // UI direkt aktualisieren
     },
     error: (err) => {
       console.error('Fehler beim Erstellen des Tasks', err);
     }
   });
   }
+
+  private reloadUserTasks(userId: string) {
+  this.apiService.getTodosByUserId(userId).subscribe({
+    next: (tasks: Task[]) => {
+      const newMap = { ...this.userTasksMap() };
+      newMap[userId] = tasks ?? [];
+      this.userTasksMap.set(newMap);
+    },
+    error: (err) => {
+      console.error('Fehler beim Neuladen der Tasks', err);
+    }
+  });
+}
 
    // Prüft cache; wenn nicht vorhanden, lädt von API und setzt das Signal.
   ensureUserTasks(userId: string): void {
